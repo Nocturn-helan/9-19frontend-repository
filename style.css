@@ -1,0 +1,22 @@
+*{
+    box-sizing: border-box;
+}
+
+body{
+    font-family: "Microsoft YaHei","PingFang Sc",sans-serif;
+    color:hsl(0, 0%, 100%);
+    line-height:1.6;
+    background-color :#101c39;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 16px;
+
+}
+
+.page-section{
+    min-height: 300px;
+    margin-bottom: 32px;
+    padding: 16px;
+    border: 1px dashed hsl(0, 0%, 100%);
+    border-radius: 8px;
+}
