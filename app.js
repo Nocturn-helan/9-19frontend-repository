@@ -4,6 +4,12 @@ let lineChart = null;
 let pieChart = null;
 
 const loadData = async () => {
+  if (typeof $ === 'undefined') {
+    const el = document.getElementById('status');
+    el.hidden = false;
+    el.textContent = '脚本加载失败，请检查网络后刷新页面';
+    return;
+  }
   $('#status').text('加载中...').show();
   try {
     const response = await fetch('data.json');
@@ -44,6 +50,7 @@ const renderCards = (data) => {
     `);
   });
 };
+
 const renderBarChart = (data) => {
   if (barChart === null) {
     barChart = echarts.init(document.querySelector('#bar-chart'));
@@ -61,9 +68,10 @@ const renderBarChart = (data) => {
     }))
   });
 };
+
 const renderLineChart = (data) => {
   if (lineChart !== null) {
-    lineChart.destroy();               // 防重复初始化
+    lineChart.destroy();
   }
   const ctx = document.querySelector('#line-chart');
   lineChart = new Chart(ctx, {
@@ -85,12 +93,12 @@ const renderLineChart = (data) => {
     }
   });
 };
+
 const renderPieChart = (data) => {
   if (pieChart === null) {
     pieChart = echarts.init(document.querySelector('#pie-chart'));
   }
-  
-  // 计算所有月份的总和，用于画饼图
+
   const pieData = data.series.map(s => {
     const total = s.counts.reduce((sum, n) => sum + n, 0);
     return { name: s.category, value: total };
@@ -98,13 +106,13 @@ const renderPieChart = (data) => {
 
   pieChart.setOption({
     title: { text: '各类自习室使用量占比', left: 'center' },
-    tooltip: { trigger: 'item', formatter: '{b}: {c} 人 ({d}%)' }, // 鼠标悬浮显示数量与百分比
+    tooltip: { trigger: 'item', formatter: '{b}: {c} 人 ({d}%)' },
     legend: { bottom: 0 },
     series: [
       {
         type: 'pie',
-        radius: '60%',          // 饼图大小
-        center: ['50%', '50%'], // 居中显示
+        radius: '60%',
+        center: ['50%', '50%'],
         data: pieData,
         emphasis: {
           itemStyle: {
@@ -117,9 +125,10 @@ const renderPieChart = (data) => {
     ]
   });
 };
+
 window.addEventListener('resize', () => {
   if (barChart) barChart.resize();
   if (pieChart) pieChart.resize();
-  // Chart.js响应式默认自动处理，无需手动
 });
+
 loadData();

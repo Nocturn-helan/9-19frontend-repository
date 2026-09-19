@@ -10,7 +10,6 @@ body{
     max-width: 640px;
     margin: 0 auto;
     padding: 16px;
-
 }
 
 .page-section{
@@ -23,4 +22,10 @@ body{
 
 .chart-box{
     height: 320px;
+}
+
+.net-tip{
+    position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+    padding: 10px; text-align: center;
+    background: #c62828; color: #fff;
 }
