@@ -16,9 +16,9 @@
                     <a class="navbar-brand" href="#canteen">云大食堂</a>
                     <div class="navbar-nav">
                         <a class="nav-link active" href="#position">位置选择</a>
-                        <a class="nav-link active" href="#select">餐饮选择</a>
+                        <a class="nav-link active" href="canyin.html">餐饮选择</a>
                         <a class="nav-link active" href="#stats">餐饮统计</a>
-                        <a class="nav-link active" href="#3Dcanteen">食堂三维</a>
+                        <a class="nav-link active" href="sanwei.html">食堂三维</a>
                     </div>
                 </div>
             </nav>
@@ -26,21 +26,153 @@
         <main class="container">
             <section id="position" class="page-section">
                 <h2>位置选择</h2>
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <select id="floor-filter" class="form-select">
+                            <option value="all">食堂：全部</option>
+                            <option value="1">楸苑</option>
+                            <option value="2">楠苑</option>
+                            <option value="3">梓苑</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <select id="status-filter" class="form-select">
+                            <option value="all">楼层：全部</option>
+                            <option value="yilou">一楼</option>
+                            <option value="erlou">二楼</option>
+                            <option value="sanlou">三楼</option>
+                        </select>
+                    </div>
+                </div>
+
+                <ul id="room-list" class="list-group"></ul>
             </section>
 
             <section id="select" class="page-section">
-                <h2>餐饮选择</h2>
+                <h2>餐饮推荐</h2>
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-md-4">
+                        <div class="card h-100">
+                            <img src="img/呵呵2.png" class="card-img-top" alt="过桥米线">
+                            <div class="card-body">
+                                <h3 class="card-title h5">广东肠粉</h3>
+                                <p class="card-text small text-muted">楸苑一楼 · ¥10/份</p>
+                                <p class="card-text">汤鲜味美、配料丰富，经典云南风味。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="card h-100">
+                            <img src="img/呵呵2.png" class="card-img-top" alt="瓦香鸡">
+                            <div class="card-body">
+                                <h3 class="card-title h5">瓦香鸡</h3>
+                                <p class="card-text small text-muted">梓苑二楼 · ¥16/份</p>
+                                <p class="card-text">香料爆炒，鸡肉鲜嫩，洋芋洋葱鲜美。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="card h-100">
+                            <img src="img/呵呵2.png" class="card-img-top" alt="鸡蛋炒面">
+                            <div class="card-body">
+                                <h3 class="card-title h5">鸡蛋炒面</h3>
+                                <p class="card-text small text-muted">楸苑一楼 · ¥12/份</p>
+                                <p class="card-text">快速爆炒、根根曲卷，果腹美味。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <a href="canyin.html" class="btn btn-sm btn-outline-light">更多查看 &raquo;</a>
+                </div>
             </section>
 
             <section id="stats" class="page-section">
                 <h2>餐饮统计</h2>
+                 <p id="sub-title" class="small text-muted"></p>
+                <p id="status" class="small text-muted" hidden></p>
+
                 <div id="cards" class="row g-3 mb-4"></div>
+
+                <div class="row g-3">
+                    <div class="col-12">
+                        <h2 class="h5">各月菜品销售量（ECharts柱状图）</h2>
+                        <div id="bar-chart" class="chart-box"></div>
+                    </div>
+                    <div class="col-12">
+                        <h2 class="h5">菜品销售量变化（Chart.js折线图）</h2>
+                        <div class="chart-box"><canvas id="line-chart"></canvas></div>
+                    </div>
+                    <div class="col-12">
+                        <h2 class="h5">各类菜品销售量占比（ECharts饼图）</h2>
+                        <div id="pie-chart" class="chart-box"></div>
+                    </div>
+                </div>
             </section>
         </main>
+        <script>
+            const canteenWindows = [
+                { name: "楸苑一楼", canteen: 1, level: "yilou", open: true, seats: 20 },
+                { name: "楸苑二楼", canteen: 1, level: "erlou", open: true, seats: 40 },
+                { name: "楸苑三楼", canteen: 1, level: "sanlou", open: false, seats: 10 },
+                { name: "楠苑一楼", canteen: 2, level: "yilou", open: false, seats: 5 },
+                { name: "楠苑二楼", canteen: 2, level: "erlou", open: false, seats: 10 },
+                { name: "楠苑三楼", canteen: 2, level: "sanlou", open: true, seats: 60 },
+                { name: "梓苑一楼", canteen: 3, level: "yilou", open: true, seats: 40 },
+                { name: "梓苑二楼", canteen: 3, level: "erlou", open: false, seats: 10 },
+                { name: "梓苑三楼", canteen: 3, level: "sanlou", open: true, seats: 60 }
+            ];
+
+            const floorFilter = document.getElementById("floor-filter");
+            const statusFilter = document.getElementById("status-filter");
+            const roomList = document.getElementById("room-list");
+
+            function renderRooms() {
+                const canteenVal = floorFilter.value;
+                const levelVal = statusFilter.value;
+
+                const result = canteenWindows.filter(room =>
+                    (canteenVal === "all" || room.canteen === Number(canteenVal)) &&
+                    (levelVal === "all" || room.level === levelVal)
+                );
+
+                if (result.length === 0) {
+                    roomList.innerHTML = '<li class="list-group-item">没有符合条件的食堂窗口</li>';
+                    return;
+                }
+
+                roomList.innerHTML = result.map(room => `
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>${room.name}</span>
+                        <span class="badge ${room.open ? "bg-success" : "bg-secondary"}">
+                            ${room.open ? "空敞" : "排队爆满"} · 剩余${room.seats}座
+                        </span>
+                    </li>
+                `).join("");
+            }
+
+            floorFilter.addEventListener("change", renderRooms);
+            statusFilter.addEventListener("change", renderRooms);
+            renderRooms();
+        </script>
+        <script>
+            (function () {
+                var netTip = document.getElementById('net-tip');
+                if (!netTip) {
+                    return;
+                }
+                function updateNetTip() {
+                    netTip.hidden = navigator.onLine;
+                }
+                window.addEventListener('online', updateNetTip);
+                window.addEventListener('offline', updateNetTip);
+                updateNetTip();
+            })();
+        </script>
          <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-        <script src="app.js"></script>
+        <script src="zizhu-app.js"></script>
     </body>
 </html>

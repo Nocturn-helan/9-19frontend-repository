@@ -1,0 +1,134 @@
+const state = { data: null };
+let barChart = null;
+let lineChart = null;
+let pieChart = null;
+
+const loadData = async () => {
+  if (typeof $ === 'undefined') {
+    const el = document.getElementById('status');
+    el.hidden = false;
+    el.textContent = '脚本加载失败，请检查网络后刷新页面';
+    return;
+  }
+  $('#status').text('加载中...').show();
+  try {
+    const response = await fetch('zizhu-data.json');
+    if (!response.ok) {
+      throw new Error('HTTP ' + response.status);
+    }
+    const data = await response.json();
+    if (data.series.length === 0) {
+      $('#status').text('暂无数据').show();
+      return;
+    }
+    state.data = data;
+    $('#sub-title').text(data.title + ' · 数据来源：实践调查问卷');
+    $('#status').hide();
+    renderCards(data);
+    renderBarChart(data);
+    renderLineChart(data);
+    renderPieChart(data);
+  } catch (error) {
+    $('#status').text('加载失败：' + error.message).show();
+  }
+};
+
+const renderCards = (data) => {
+  const months = data.months;
+  data.series.forEach(s => {
+    const total = s.counts.reduce((sum, n) => sum + n, 0);
+    $('#cards').append(`
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body">
+            <h3 class="card-title h6">${s.category}</h3>
+            <p class="card-text fs-4">${total}</p>
+            <p class="card-text small text-muted">共${months.length}个月累计销量</p>
+          </div>
+        </div>
+      </div>
+    `);
+  });
+};
+
+const renderBarChart = (data) => {
+  if (barChart === null) {
+    barChart = echarts.init(document.querySelector('#bar-chart'));
+  }
+  barChart.setOption({
+    title: { text: '各菜品销量', left: 'center' },
+    tooltip: { trigger: 'axis' },
+    legend: { bottom: 0 },
+    xAxis: { data: data.months },
+    yAxis: { name: '份' },
+    series: data.series.map(s => ({
+      name: s.category,
+      type: 'bar',
+      data: s.counts
+    }))
+  });
+};
+
+const renderLineChart = (data) => {
+  if (lineChart !== null) {
+    lineChart.destroy();
+  }
+  const ctx = document.querySelector('#line-chart');
+  lineChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.months,
+      datasets: data.series.map(s => ({
+        label: s.category,
+        data: s.counts,
+        borderWidth: 1
+      }))
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: { display: true, text: '菜品日销售量变化趋势（单位：份）' }
+      }
+    }
+  });
+};
+
+const renderPieChart = (data) => {
+  if (pieChart === null) {
+    pieChart = echarts.init(document.querySelector('#pie-chart'));
+  }
+
+  const pieData = data.series.map(s => {
+    const total = s.counts.reduce((sum, n) => sum + n, 0);
+    return { name: s.category, value: total };
+  });
+
+  pieChart.setOption({
+    title: { text: '各类菜品销量占比', left: 'center' },
+    tooltip: { trigger: 'item', formatter: '{b}: {c} 份 ({d}%)' },
+    legend: { bottom: 0 },
+    series: [
+      {
+        type: 'pie',
+        radius: '60%',
+        center: ['50%', '50%'],
+        data: pieData,
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        }
+      }
+    ]
+  });
+};
+
+window.addEventListener('resize', () => {
+  if (barChart) barChart.resize();
+  if (pieChart) pieChart.resize();
+});
+
+loadData();
