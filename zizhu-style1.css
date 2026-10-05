@@ -1,0 +1,35 @@
+*{
+    box-sizing: border-box;
+}
+
+body{
+    font-family: "Microsoft YaHei","PingFang Sc",sans-serif;
+    color:hsl(197, 60%, 75%);
+    line-height:1.6;
+    background-color :#349590;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+body.wide{
+    max-width: 1100px;
+}
+
+.page-section{
+    min-height: 300px;
+    margin-bottom: 32px;
+    padding: 16px;
+    border: 1px dashed hsl(178, 44%, 66%);
+    border-radius: 8px;
+}
+
+.chart-box{
+    height: 320px;
+}
+
+.net-tip{
+    position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+    padding: 10px; text-align: center;
+    background: #c62828; color: #fff;
+}
